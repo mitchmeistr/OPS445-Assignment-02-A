@@ -3,11 +3,11 @@
 '''
 OPS445 Assignment 2
 Program: assignment2.py 
-Author: "Student Name"
-Semester: "Enter Winter/Summer/Fall Year"
+Author: Mitchell Gregoris
+Semester: Fall 2024
 
 The python code in this file is original work written by
-"Student Name". No code in this file is copied from any other source 
+Mitch Gregoris. No code in this file is copied from any other source 
 except those provided by the course instructor, including any person, 
 textbook, or on-line resource. I have not shared this python script 
 with anyone or anything except for submission for grading.  
@@ -25,11 +25,11 @@ def parse_command_args() -> object:
     "Set up argparse here. Call this function inside main."
     parser = argparse.ArgumentParser(description="Memory Visualiser -- See Memory Usage Report with bar charts",epilog="Copyright 2023")
     parser.add_argument("-l", "--length", type=int, default=20, help="Specify the length of the graph. Default is 20.")
-    # add argument for "human-readable". USE -H, don't use -h! -h is reserved for --help which is created automatically.
-    # check the docs for an argparse option to store this as a boolean.
+    parser.add_argument("-H", "--human-readable", action="store_true", help="Prints the sizes in human readable format")
     parser.add_argument("program", type=str, nargs='?', help="if a program is specified, show memory use of all associated processes. Show only total use is not.")
     args = parser.parse_args()
     return args
+ 
 # create argparse function
 # -H human readable
 # -r running only
