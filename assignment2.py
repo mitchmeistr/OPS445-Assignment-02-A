@@ -59,19 +59,22 @@ def get_sys_mem() -> int:
     #open file and auto close when finished
     with open("/proc/meminfo", "r") as file:
         meminfo = file.readlines()
-
-    # get total and available memory
-    memory_total = int(meminfo[0].split()[1])  # First line is MemTotal
-    #memory_free = int(meminfo[2].split()[1])  # Third line is MemAvailable
-
-    # memory calculation
-    #memory_used = memory_total - memory_free
+    
+    # get the first line, which is the memory total line
+    memory_total = int(meminfo[0].split()[1])
 
     return memory_total
 
 def get_avail_mem() -> int:
     "return total memory that is available"
-    ...
+     #open file and auto close when finished
+    with open("/proc/meminfo", "r") as file:
+        meminfo = file.readlines()
+
+    # get the third line, which is the memory available line
+    memory_free = int(meminfo[2].split()[1])  # Third line is MemAvailable
+
+    return memory_free
 
 def pids_of_prog(app_name: str) -> list:
     "given an app name, return all pids associated with app"
