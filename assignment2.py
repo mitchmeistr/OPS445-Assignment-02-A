@@ -34,6 +34,21 @@ def parse_command_args() -> object:
 # -H human readable
 # -r running only
 
+def get_system_memory():
+    '''Get all current system memory'''
+    #open file and auto close when finished
+    with open("/proc/meminfo", "r") as file:
+        meminfo = file.readlines()
+
+    # get total and available memory
+    memory_total = int(meminfo[0].split()[1])  # First line is MemTotal
+    memory_free = int(meminfo[2].split()[1])  # Third line is MemAvailable
+
+    # memory calculation
+    memory_used = memory_total - memory_free
+
+    return memory_used, memory_total
+
 def percent_to_graph(percent: float, length: int=20) -> str:
     "turns a percent 0.0 - 1.0 into a bar graph"
     ...
@@ -41,7 +56,18 @@ def percent_to_graph(percent: float, length: int=20) -> str:
 
 def get_sys_mem() -> int:
     "return total system memory (used or available) in kB"
-    ...
+    #open file and auto close when finished
+    with open("/proc/meminfo", "r") as file:
+        meminfo = file.readlines()
+
+    # get total and available memory
+    memory_total = int(meminfo[0].split()[1])  # First line is MemTotal
+    #memory_free = int(meminfo[2].split()[1])  # Third line is MemAvailable
+
+    # memory calculation
+    #memory_used = memory_total - memory_free
+
+    return memory_total
 
 def get_avail_mem() -> int:
     "return total memory that is available"
