@@ -14,7 +14,7 @@ with anyone or anything except for submission for grading.
 I understand that the Academic Honesty Policy will be enforced and 
 violators will be reported and appropriate action will be taken.
 
-Description: <Enter your documentation here>
+Description: Script that presents system process memory
 
 '''
 
@@ -29,14 +29,11 @@ def parse_command_args() -> object:
     parser.add_argument("program", type=str, nargs='?', help="if a program is specified, show memory use of all associated processes. Show only total use is not.")
     args = parser.parse_args()
     return args
- 
-# create argparse function
-# -H human readable
-# -r running only
+
 
 def percent_to_graph(percent: float, length: int=20) -> str:
     '''turns a percent 0.0 - 1.0 into a bar graph'''
-    ...
+
     # Keep our values between desired range
     percent = max(0.0, min(1.0, percent))
     
@@ -75,7 +72,7 @@ def pids_of_prog(app_name: str) -> list:
     # Read all pidof, store in output
     # Convert our strings to int
     # Catch all errors exception
-    # ** Modified from str to int for check script
+    # ** Modified from int -> str for check script req
     try:
         output = os.popen(f"pidof {app_name}").read().strip()
         if output:
@@ -102,8 +99,9 @@ def rss_mem_of_pid(proc_id: str) -> int:
 
 
 def bytes_to_human_r(kibibytes: int, decimal_places: int=2) -> str:
-    # TODO: comment what func does
     "turn 1,024 into 1 MiB, for example"
+    ## Everytime kibibyte is successfully divied by 1024
+    ## Increment memory size suffix value
     suffixes = ['KiB', 'MiB', 'GiB', 'TiB', 'PiB']  # iB indicates 1024
     suf_count = 0
     result = kibibytes 
