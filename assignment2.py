@@ -62,29 +62,19 @@ def get_avail_mem() -> int:
     return memory_free
 
 def pids_of_prog(app_name: str) -> list:
-    '''given an app name, return all pids associated with app'''
-    ...
-    pids = []
-    ## Read /proc for PID,
-    ## Read /comm to check programs associated with PID
-    ## Add to our list, + error to determine cause 
+    """Given an app name, return all PIDs associated with the app using pidof."""
+    # Read all pidof, store in output
+    # Convert our strings to int
+    # Catch all errors exception
     try:
-        for pid in os.listdir("/proc"):
-            if pid.isdigit():
-                try:
-                    with open(f"/proc/{pid}/comm", "r") as file:
-                        if file.read().strip() == app_name:
-                            pids.append(int(pid))
-                except FileNotFoundError:
-                    print("File not found")
-                    continue
-                except PermissionError:
-                    print("Permissions issue")
-                    continue
-    except FileNotFoundError:
-        print("File directory not found")
-        pass
-    return pids
+        output = os.popen(f"pidof {app_name}").read().strip()
+        if output:
+            return list(map(int, output.split()))
+        else:
+            return []
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        return []
 
 def rss_mem_of_pid(proc_id: str) -> int:
     '''given a process id, return the resident memory used, zero if not found'''
