@@ -37,7 +37,16 @@ def parse_command_args() -> object:
 def percent_to_graph(percent: float, length: int=20) -> str:
     '''turns a percent 0.0 - 1.0 into a bar graph'''
     ...
-# percent to graph function
+    # Keep our values between desired range
+    percent = max(0.0, min(1.0, percent))
+    
+    # Scaling foruma
+    hash_num = round(percent * length)
+
+    # Format output
+    hash_bar = "#" * hash_num + " " * (length - hash_num)
+
+    return hash_bar
 
 def get_sys_mem() -> int:
     '''return total system memory (used or available) in kB'''
