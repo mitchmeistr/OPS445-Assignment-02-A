@@ -75,10 +75,11 @@ def pids_of_prog(app_name: str) -> list:
     # Read all pidof, store in output
     # Convert our strings to int
     # Catch all errors exception
+    # ** Modified from str to int for check script
     try:
         output = os.popen(f"pidof {app_name}").read().strip()
         if output:
-            return list(map(int, output.split()))
+            return list(map(str, output.split()))
         else:
             return []
     except Exception as e:
@@ -87,7 +88,6 @@ def pids_of_prog(app_name: str) -> list:
 
 def rss_mem_of_pid(proc_id: str) -> int:
     '''given a process id, return the resident memory used, zero if not found'''
-    ...
     ## Read /proc/[PID]/status to find VmRSS
     ## Reading from status as smaps causes permissions error
     try:
@@ -116,23 +116,67 @@ def bytes_to_human_r(kibibytes: int, decimal_places: int=2) -> str:
 
 if __name__ == "__main__":
     args = parse_command_args()
-    if not args.program:
-        ...
-    else:
-        ...
-    # process args
-    # if no parameter passed, 
-    # open meminfo.
-    # get used memory
-    # get total memory
-    # call percent to graph
-    # print
 
-    # if a parameter passed:
-    # get pids from pidof
-    # lookup each process id in /proc
-    # read memory used
-    # add to total used
-    # percent to graph
-    # take total our of total system memory? or total used memory? total used memory.
-    # percent to graph.
+    # Unspecified PID
+    if not args.program:
+        # Set our variables
+        total_memory = get_sys_mem()
+        available_memory = get_avail_mem()
+        used_memory = total_memory - available_memory
+
+        # Calculate % memory used
+        percent_memory_used = used_memory / total_memory
+
+        # Set output for '-H' flag
+        if args.human_readable:
+            total_memory_str = bytes_to_human_r(total_memory)
+            used_memory_str = bytes_to_human_r(used_memory)
+            output = f"Memory [{percent_to_graph(percent_memory_used, args.length)} | \
+                {int(percent_memory_used * 100)}%] {used_memory_str}/{total_memory_str}"
+               
+        else:
+            output = f"Memory [{percent_to_graph(percent_memory_used, args.length)} | \
+                {int(percent_memory_used * 100)}%] {used_memory}/{total_memory}"
+        
+        print(output)
+
+    # Specified PID
+    else:
+        pids = pids_of_prog(args.program)
+
+        if not pids:
+            print(f"{args.program} not found.")
+            sys.exit(1)
+        
+        # Set our variables
+        total_memory_used = 0
+        total_memory = get_sys_mem()
+        for pid in pids:
+            rss_memory = rss_mem_of_pid(pid)
+            total_memory_used += rss_memory
+
+            # Calculate % memory used
+            percent_memory_used = rss_memory / total_memory
+
+            # Set our formatting for '-H' flag
+            if args.human_readable:
+                rss_memory_str = bytes_to_human_r(rss_memory)
+                total_memory_str = bytes_to_human_r(total_memory)
+                print(f"{pid:<15} [{percent_to_graph(percent_memory_used, args.length)} | \
+                     {int(percent_memory_used * 100)}%] {rss_memory_str}/{total_memory_str}")
+            else:
+                print(f"{pid:<15} [{percent_to_graph(percent_memory_used, args.length)} | \
+                     {int(percent_memory_used * 100)}%] {rss_memory}/{total_memory}")
+        
+        # Calculate our total memory usage
+        percent_total_memory_used = total_memory_used / total_memory
+
+        # Set format for '-H' flag
+        if args.human_readable:
+            total_memory_used_str = bytes_to_human_r(total_memory_used)
+            total_memory_str = bytes_to_human_r(total_memory)
+            print(f"{args.program:<15} [{percent_to_graph(percent_total_memory_used, args.length)} | \
+                 {int(percent_total_memory_used * 100)}%] {total_memory_used_str}/{total_memory_str}")
+        else:
+            print(f"{args.program:<15} [{percent_to_graph(percent_total_memory_used, args.length)} | \
+                 {int(percent_total_memory_used * 100)}%] {total_memory_used}/{total_memory}")
