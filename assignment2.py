@@ -34,21 +34,6 @@ def parse_command_args() -> object:
 # -H human readable
 # -r running only
 
-def get_system_memory():
-    '''Get all current system memory'''
-    #open file and auto close when finished
-    with open("/proc/meminfo", "r") as file:
-        meminfo = file.readlines()
-
-    # get total and available memory
-    memory_total = int(meminfo[0].split()[1])  # First line is MemTotal
-    memory_free = int(meminfo[2].split()[1])  # Third line is MemAvailable
-
-    # memory calculation
-    memory_used = memory_total - memory_free
-
-    return memory_used, memory_total
-
 def percent_to_graph(percent: float, length: int=20) -> str:
     "turns a percent 0.0 - 1.0 into a bar graph"
     ...
@@ -72,19 +57,38 @@ def get_avail_mem() -> int:
         meminfo = file.readlines()
 
     # get the third line, which is the memory available line
-    memory_free = int(meminfo[2].split()[1])  # Third line is MemAvailable
+    memory_free = int(meminfo[2].split()[1])
 
     return memory_free
 
 def pids_of_prog(app_name: str) -> list:
     "given an app name, return all pids associated with app"
     ...
+    pids = [] 
+    try:
+        for pid in os.listdir("/proc"):
+            if pid.isdigit():
+                try:
+                    with open(f"/proc/{pid}/comm", "r") as file:
+                        if file.read().strip() == app_name:
+                            pids.append(int(pid))
+                except FileNotFoundError:
+                    print("File not found")
+                    continue
+                except PermissionError:
+                    print("Permissions issue")
+                    continue
+    except FileNotFoundError:
+        print("File directory not found")
+        pass
+    return pids
 
 def rss_mem_of_pid(proc_id: str) -> int:
     "given a process id, return the resident memory used, zero if not found"
     ...
 
 def bytes_to_human_r(kibibytes: int, decimal_places: int=2) -> str:
+    # TODO: comment what func does
     "turn 1,024 into 1 MiB, for example"
     suffixes = ['KiB', 'MiB', 'GiB', 'TiB', 'PiB']  # iB indicates 1024
     suf_count = 0
