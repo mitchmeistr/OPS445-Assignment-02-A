@@ -67,7 +67,7 @@ def pids_of_prog(app_name: str) -> list:
     pids = []
     ## Read /proc for PID,
     ## Read /comm to check programs associated with PID
-    ## Add to our list, + error to prevent crash
+    ## Add to our list, + error to determine cause 
     try:
         for pid in os.listdir("/proc"):
             if pid.isdigit():
@@ -90,7 +90,7 @@ def rss_mem_of_pid(proc_id: str) -> int:
     '''given a process id, return the resident memory used, zero if not found'''
     ...
     ## Read /proc/[PID]/status to find VmRSS
-    ## Feature modified for openSUSE host (no smaps file in proc/pid)
+    ## Reading from status as smaps causes permissions error
     try:
         with open(f"/proc/{proc_id}/status", "r") as file:
             for line in file:
@@ -99,7 +99,7 @@ def rss_mem_of_pid(proc_id: str) -> int:
     except FileNotFoundError:
         print("PID file cannot be found...")
         return 0
-    return 0 
+    return 0
 
 
 def bytes_to_human_r(kibibytes: int, decimal_places: int=2) -> str:
