@@ -35,12 +35,12 @@ def parse_command_args() -> object:
 # -r running only
 
 def percent_to_graph(percent: float, length: int=20) -> str:
-    "turns a percent 0.0 - 1.0 into a bar graph"
+    '''turns a percent 0.0 - 1.0 into a bar graph'''
     ...
 # percent to graph function
 
 def get_sys_mem() -> int:
-    "return total system memory (used or available) in kB"
+    '''return total system memory (used or available) in kB'''
     #open file and auto close when finished
     with open("/proc/meminfo", "r") as file:
         meminfo = file.readlines()
@@ -51,7 +51,7 @@ def get_sys_mem() -> int:
     return memory_total
 
 def get_avail_mem() -> int:
-    "return total memory that is available"
+    '''return total memory that is available'''
      #open file and auto close when finished
     with open("/proc/meminfo", "r") as file:
         meminfo = file.readlines()
@@ -62,9 +62,12 @@ def get_avail_mem() -> int:
     return memory_free
 
 def pids_of_prog(app_name: str) -> list:
-    "given an app name, return all pids associated with app"
+    '''given an app name, return all pids associated with app'''
     ...
-    pids = [] 
+    pids = []
+    ## Read /proc for PID,
+    ## Read /comm to check programs associated with PID
+    ## Add to our list, + error to prevent crash
     try:
         for pid in os.listdir("/proc"):
             if pid.isdigit():
@@ -84,8 +87,20 @@ def pids_of_prog(app_name: str) -> list:
     return pids
 
 def rss_mem_of_pid(proc_id: str) -> int:
-    "given a process id, return the resident memory used, zero if not found"
+    '''given a process id, return the resident memory used, zero if not found'''
     ...
+    ## Read /proc/[PID]/status to find VmRSS
+    ## Feature modified for openSUSE host (no smaps file in proc/pid)
+    try:
+        with open(f"/proc/{proc_id}/status", "r") as file:
+            for line in file:
+                if line.startswith("VmRSS:"):
+                    return int(line.split()[1])
+    except FileNotFoundError:
+        print("PID file cannot be found...")
+        return 0
+    return 0 
+
 
 def bytes_to_human_r(kibibytes: int, decimal_places: int=2) -> str:
     # TODO: comment what func does
